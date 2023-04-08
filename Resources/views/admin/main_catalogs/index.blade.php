@@ -1,13 +1,5 @@
 @extends('layouts.admin.app')
-@section('styles')
-    <link href="{{ asset('admin/css/select2.min.css') }}" rel="stylesheet"/>
-@endsection
-@section('scripts')
-    <script src="{{ asset('admin/js/select2.min.js') }}"></script>
-    <script>
-        $(".select2").select2({language: "bg"});
-    </script>
-@endsection
+
 @section('content')
     @include('catalogs::admin.main_catalogs.breadcrumbs')
     @include('admin.notify')
@@ -38,6 +30,7 @@
                                     </div>
                                 </td>
                                 <td class="width-2-percent">{{$i}}</td>
+                                <td></td>
                                 <td>{{ $mainCatalog->title}}</td>
                                 <td class="pull-right">
                                     @include('admin.partials.index.action_buttons', ['mainRoute' => 'catalogs.main', 'models' => $mainCatalogs, 'model' => $mainCatalog, 'showInPublicModal' => false])
@@ -45,7 +38,7 @@
                             </tr>
                             <tr class="t-row-details row-{{$mainCatalog->id}}-details hidden">
                                 <td colspan="2"></td>
-                                <td colspan="1">
+                                <td colspan="2">
                                     <table class="table-details">
                                         <tbody>
                                         <tr>
@@ -55,7 +48,7 @@
                                     </table>
                                 </td>
                                 <td class="width-220">
-                                    <img class="thumbnail img-responsive" src="{{ $mainCatalog->fullImageFilePathUrl() }}"/>
+                                    <img class="thumbnail img-responsive" src="{{ $mainCatalog->translate(config('default.app.language.code'))->fullImageFilePathUrl() }}"/>
                                 </td>
                             </tr>
                             <?php $i++;?>

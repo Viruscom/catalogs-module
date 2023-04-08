@@ -3,11 +3,15 @@
 namespace Modules\Catalogs\Models;
 
 use App\Helpers\StorageHelper;
+use App\Traits\StorageActions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class MainCatalogTranslation extends Model
 {
+    use StorageActions;
+
     public const FILES_PATH = "catalogs/main";
 
     protected $table    = "catalogs_main_translation";
@@ -38,36 +42,44 @@ class MainCatalogTranslation extends Model
 
     public function directoryPath(): string
     {
-        return public_path(self::$IMAGES_PATH . '/' . $this->main_catalog_id);
+        return public_path($this->getFilesPath());
     }
 
     public function fullImageFilePath(): string
     {
-        return public_path(self::$IMAGES_PATH . '/' . $this->main_catalog_id) . '/' . $this->thumbnail;
+        return public_path($this->getFilesPath() . $this->thumbnail);
     }
 
     public function fullImageFilePathUrl(): string
     {
-        if ($this->thumbnail == '' || !file_exists(public_path(self::$IMAGES_PATH . '/' . $this->main_catalog_id . '/' . $this->thumbnail))) {
-            return url('admin/assets/system_images/thumbnail_img.png');
+        if (!is_null($this->thumbnail) && $this->existsFile($this->thumbnail)) {
+            return Storage::disk('public')->url($this->getFilepath($this->thumbnail));
         }
 
-        return url(self::$IMAGES_PATH . '/' . $this->main_catalog_id) . '/' . $this->thumbnail;
+        return url($this->getSystemImage());
     }
 
     public function fullPdfFilePath(): string
     {
-        return public_path(self::$IMAGES_PATH . '/' . $this->main_catalog_id) . '/' . $this->filename;
+        return public_path($this->getFilesPath() . $this->filename);
     }
 
     public function fullPdfFilePathUrl(): string
     {
-        return url(self::$IMAGES_PATH . '/' . $this->main_catalog_id) . '/' . $this->filename;
+        if (!is_null($this->filename) && $this->existsFile($this->filename)) {
+            return Storage::disk('public')->url($this->getFilepath($this->filename));
+        }
+
+        return url('/');
     }
 
+    public function getSystemImage()
+    {
+        return url('admin/assets/system_images/thumbnail_img.png');
+    }
     public function catalogPreviewPath(): string
     {
-        return url(self::$IMAGES_PATH . '/' . $this->main_catalog_id) . '/' . $this->filename;
+        return url($this->getFilesPath() . $this->filename);
     }
 
     public static function boot()
@@ -84,7 +96,7 @@ class MainCatalogTranslation extends Model
             }
 
             if (count(FileHelper::getFilesFromDirectory($el->directoryPath())) == 0) {
-                File::deleteDirectory($el->directoryPath(), false);
+                $this->deleteDirectory($el->getFilesPath());
             }
         });
     }
@@ -100,7 +112,7 @@ class MainCatalogTranslation extends Model
     }
     public function getFilesPath(): string
     {
-        return self::FILES_PATH . '/' . $this->main_catalog_id . '/';
+        return self::FILES_PATH . '/' . $this->main_catalog_id . '/' . $this->locale . '/';
     }
     public function savePdf($pdf)
     {

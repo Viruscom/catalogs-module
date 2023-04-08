@@ -28,7 +28,7 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
         return $this->belongsTo(MainCatalog::class, 'main_catalog_id');
     }
 
-    public static function generatePosition($parentTypeId, $parentId, $request)
+    public static function generatePosition($request)
     {
         $galleries = self::where('parent_type_id', $parentTypeId)->where('parent_id', $parentId)->where('main_position', $request->main_position)->orderBy('position', 'desc')->get();
         if (count($galleries) < 1) {
