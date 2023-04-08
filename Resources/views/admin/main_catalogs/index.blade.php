@@ -55,7 +55,7 @@
                                     </table>
                                 </td>
                                 <td class="width-220">
-                                    <img class="thumbnail img-responsive" src="{{ $mainCatalog->getThumbnailUrl() }}"/>
+                                    <img class="thumbnail img-responsive" src="{{ $mainCatalog->fullImageFilePathUrl() }}"/>
                                 </td>
                             </tr>
                             <?php $i++;?>

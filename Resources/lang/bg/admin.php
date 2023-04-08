@@ -15,13 +15,6 @@ return [
         'catalog_file_info'      => 'Каталогът трябва да е с разширение <strong>.pdf</strong> и с максимален размер <strong>200 МВ</strong>',
         'catalog_thumbnail_file' => 'Файл за миниатюра на каталога',
         'catalog_thumbnail_file_info' => 'Миниатюратa на каталога трябва да е <strong>.png</strong> и с максимален размер <strong>3 МВ</strong>',
-        'title_bg.required' => 'Заглавието за езиковата версия bg е задължително',
-        'filename_bg.required' => 'Каталогът за езикова версия bg е задължителен',
-        'filename_bg.mimes' => 'Каталогът за езикова версия bg трябва да е .pdf файл',
-        'filename_bg.max' => 'Каталогът за езикова версия bg трябва да е максимум 200 МВ',
-        'thumbnail_bg.required' => 'Thumbnail за езикова версия bg е задължителен',
-        'thumbnail_bg.mimes' => 'Thumbnail за езикова версия bg трябва да е .png файл',
-        'thumbnail_bg.max' => 'Thumbnail за езикова версия bg трябва да е максимум 3 МВ',
     ],
     'catalogs'      => [
         'index'  => 'Страници с каталози',

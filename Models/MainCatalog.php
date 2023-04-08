@@ -4,19 +4,19 @@ namespace Modules\Catalogs\Models;
 
 use App\Helpers\CacheKeysHelper;
 use App\Interfaces\Models\CommonModelInterface;
+use App\Models\Pages\PageTranslation;
 use App\Traits\CommonActions;
 use App\Traits\Scopes;
 use App\Traits\StorageActions;
 use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
 use Astrotomic\Translatable\Translatable;
 use Auth;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class MainCatalog extends Model implements TranslatableContract, CommonModelInterface
 {
-    use Translatable, Scopes, StorageActions, CommonActions;
-
-    public const FILES_PATH = "images/catalogs/main";
+    use Translatable, Scopes, CommonActions;
 
     public array         $translatedAttributes        = ['title', 'filename', 'thumbnail'];
     protected            $table                       = "catalogs_main";
@@ -24,11 +24,26 @@ class MainCatalog extends Model implements TranslatableContract, CommonModelInte
 
     public static function getRequestData($request)
     {
-        // TODO: Implement getRequestData() method.
+        $data = [];
+
+        $data['active'] = false;
+        if ($request->has('active')) {
+            $data['active'] = filter_var($request->active, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        if ($request->hasFile('image')) {
+            $data['filename'] = pathinfo(CommonActions::getValidFilenameStatic($request->image->getClientOriginalName()), PATHINFO_FILENAME) . '.' . $request->image->getClientOriginalExtension();
+        }
+
+        return $data;
     }
     public static function getLangArraysOnStore($data, $request, $languages, $modelId, $isUpdate)
     {
-        // TODO: Implement getLangArraysOnStore() method.
+        foreach ($languages as $language) {
+            $data[$language->code] = MainCatalogTranslation::getLanguageArray($language, $request, $modelId, $isUpdate);
+        }
+
+        return $data;
     }
     public static function cacheUpdate()
     {
@@ -37,4 +52,6 @@ class MainCatalog extends Model implements TranslatableContract, CommonModelInte
             return self::with('translations')->withTranslation()->orderBy('position')->get();
         });
     }
+
+
 }

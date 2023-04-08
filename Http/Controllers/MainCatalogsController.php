@@ -7,6 +7,7 @@ use App\Helpers\CacheKeysHelper;
 use App\Helpers\FileDimensionHelper;
 use App\Helpers\LanguageHelper;
 use App\Http\Requests\CategoryPageStoreRequest;
+use App\Models\Catalogs\MainCatalogTranslation;
 use App\Models\CategoryPage\CategoryPage;
 use App\Models\CategoryPage\CategoryPageTranslation;
 use Illuminate\Http\RedirectResponse;
@@ -14,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
 use Modules\Catalogs\Actions\CommonCatalogAction;
-use Modules\Catalogs\Http\Requests\MainCatalogStoreRequest;
+use Modules\Catalogs\Http\Requests\MainCatalogRequest;
 use Modules\Catalogs\Models\MainCatalog;
 
 class MainCatalogsController extends Controller {
@@ -36,18 +37,20 @@ class MainCatalogsController extends Controller {
 
         return view('catalogs::admin.main_catalogs.create', ['languages' => LanguageHelper::getActiveLanguages()]);
     }
-    public function store(MainCatalogStoreRequest $request, CommonControllerAction $action): RedirectResponse
+    public function store(MainCatalogRequest $request, CommonControllerAction $action): RedirectResponse
     {
-        if ($request->has('image')) {
-            $request->validate(['image' => FileDimensionHelper::getRules('CategoryPage', 1)], FileDimensionHelper::messages('CategoryPage', 1));
+        $mainCatalog = $action->doSimpleCreate(MainCatalog::class, $request);
+        $languages = LanguageHelper::getActiveLanguages();
+
+        foreach ($languages as $language) {
+            $mainCatalogTranslation = $mainCatalog->translate($language->code);
+            $mainCatalogTranslation->savePdf($request['filename_' . $language->code]);
+            $mainCatalogTranslation->saveImage($request['thumbnail_' . $language->code]);
         }
-        $categoryPage = $action->doSimpleCreate(CategoryPage::class, $request);
-        $action->updateUrlCache($categoryPage, CategoryPageTranslation::class);
-        CategoryPage::cacheUpdate();
+        MainCatalog::cacheUpdate();
+        $mainCatalog->storeAndAddNew($request);
 
-        $categoryPage->storeAndAddNew($request);
-
-        return redirect()->route('admin.category-page.index')->with('success-message', trans('admin.common.successful_create'));
+        return redirect()->route('admin.catalogs.main.index')->with('success-message', trans('admin.common.successful_create'));
     }
 
     public function edit($id, CommonCatalogAction $action)
