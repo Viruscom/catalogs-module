@@ -1,0 +1,24 @@
+{
+    "name": "iwish/catalogs-module",
+    "description": "",
+    "authors": [
+        {
+            "name": "test",
+            "email": "test@test.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Catalogs\\": ""
+        }
+    },
+    "type": "laravel-module"
+}
