@@ -12,7 +12,7 @@
                     <thead>
                     <th class="width-2-percent"></th>
                     <th class="width-2-percent">{{ __('admin.number') }}</th>
-                    <th>{{ __('catalogs::admin.catalog_image') }}</th>
+                    <th style="width: 55px">{{ __('catalogs::admin.catalog_image') }}</th>
                     <th>{{ __('admin.title') }}</th>
                     <th class="width-220">{{ __('admin.actions') }}</th>
                     </thead>
@@ -30,7 +30,7 @@
                                     </div>
                                 </td>
                                 <td class="width-2-percent">{{$i}}</td>
-                                <td></td>
+                                <td style="width: 55px"><img class="img-responsive" width="50" src="{{ $mainCatalog->translate(config('default.app.language.code'))->fullImageFilePathUrl() }}"/></td>
                                 <td>{{ $mainCatalog->title}}</td>
                                 <td class="pull-right">
                                     @include('admin.partials.index.action_buttons', ['mainRoute' => 'catalogs.main', 'models' => $mainCatalogs, 'model' => $mainCatalog, 'showInPublicModal' => false])

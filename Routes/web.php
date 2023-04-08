@@ -35,9 +35,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth']], static function ()
         Route::group(['prefix' => '{id}'], static function () {
             Route::get('edit', [MainCatalogsController::class, 'edit'])->name('admin.catalogs.main.edit');
             Route::post('update', [MainCatalogsController::class, 'update'])->name('admin.catalogs.main.update');
-            Route::delete('delete', [MainCatalogsController::class, 'delete'])->name('admin.catalogs.main.delete');
+            Route::get('delete', [MainCatalogsController::class, 'delete'])->name('admin.catalogs.main.delete');
             Route::get('show', [MainCatalogsController::class, 'show'])->name('admin.catalogs.main.show');
-            Route::post('/active/{active}', [MainCatalogsController::class, 'changeActiveStatus'])->name('admin.catalogs.main.changeStatus');
+            Route::get('/active/{active}', [MainCatalogsController::class, 'active'])->name('admin.catalogs.main.changeStatus');
+            Route::get('position/up', [MainCatalogsController::class, 'positionUp'])->name('admin.catalogs.main.position-up');
+            Route::get('position/down', [MainCatalogsController::class, 'positionDown'])->name('admin.catalogs.main.position-down');
         });
     });
 

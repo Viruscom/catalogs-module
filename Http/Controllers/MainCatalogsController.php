@@ -6,10 +6,12 @@ use App\Actions\CommonControllerAction;
 use App\Helpers\CacheKeysHelper;
 use App\Helpers\FileDimensionHelper;
 use App\Helpers\LanguageHelper;
+use App\Helpers\MainHelper;
 use App\Http\Requests\CategoryPageStoreRequest;
 use App\Models\Catalogs\MainCatalogTranslation;
 use App\Models\CategoryPage\CategoryPage;
 use App\Models\CategoryPage\CategoryPageTranslation;
+use App\Models\Pages\Page;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -60,6 +62,67 @@ class MainCatalogsController extends Controller {
             return redirect()->back()->withErrors($errors);
         }
 
+
+    }
+
+    public function update()
+    {
+
+    }
+
+    public function delete($id, CommonControllerAction $action): RedirectResponse
+    {
+        $page = MainCatalog::find($id);
+        MainHelper::goBackIfNull($page);
+
+        $action->delete(MainCatalog::class, $page);
+
+        return redirect()->back()->with('success-message', 'admin.common.successful_delete');
+    }
+
+    public function active($id, $active): RedirectResponse
+    {
+        $mainCatalog = MainCatalog::find($id);
+        MainHelper::goBackIfNull($mainCatalog);
+
+        $mainCatalog->update(['active' => $active]);
+        MainCatalog::cacheUpdate();
+
+        return redirect()->back()->with('success-message', 'admin.common.successful_edit');
+    }
+
+    public function positionUp($id, CommonControllerAction $action): RedirectResponse
+    {
+        $mainCatalog = MainCatalog::whereId($id)->with('translations')->first();
+        MainHelper::goBackIfNull($mainCatalog);
+
+        $action->positionUp(MainCatalog::class, $mainCatalog);
+        MainCatalog::cacheUpdate();
+
+        return redirect()->back()->with('success-message', 'admin.common.successful_edit');
+    }
+
+    public function positionDown($id, CommonControllerAction $action): RedirectResponse
+    {
+        $mainCatalog = MainCatalog::whereId($id)->with('translations')->first();
+        MainHelper::goBackIfNull($mainCatalog);
+
+        $action->positionDown(MainCatalog::class, $mainCatalog);
+        MainCatalog::cacheUpdate();
+
+        return redirect()->back()->with('success-message', 'admin.common.successful_edit');
+    }
+
+    public function activeMultiple($active, Request $request, CommonControllerAction $action): RedirectResponse
+    {
+        $action->activeMultiple(MainCatalog::class, $request, $active);
+        Page::cacheUpdate();
+
+        return redirect()->back()->with('success-message', 'admin.common.successful_edit');
+    }
+
+    public function deleteMultiple()
+    {
 
     }
 }
