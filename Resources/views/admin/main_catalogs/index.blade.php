@@ -18,8 +18,9 @@
                     </thead>
                     <tbody>
                     @if(count($mainCatalogs))
-                        <?php $i = 1;?>
+                        <?php $i = 1; ?>
                         @foreach($mainCatalogs as $mainCatalog)
+                            <?php $currentTranslation = $mainCatalog->translate(config('default.app.language.code')); ?>
                             <tr class="t-row row-{{$mainCatalog->id}}">
                                 <td class="width-2-percent">
                                     <div class="pretty p-default p-square">
@@ -30,9 +31,11 @@
                                     </div>
                                 </td>
                                 <td class="width-2-percent">{{$i}}</td>
-                                <td style="width: 55px"><img class="img-responsive" width="50" src="{{ $mainCatalog->translate(config('default.app.language.code'))->fullImageFilePathUrl() }}"/></td>
+                                <td style="width: 55px"><img class="img-responsive" width="50" src="{{ $currentTranslation->fullImageFilePathUrl() }}"/></td>
                                 <td>{{ $mainCatalog->title}}</td>
                                 <td class="pull-right">
+                                    <a href="{{ $currentTranslation->fullPdfFilePathUrl() }}" target="_blank" class="btn purple-a tooltips" role="button" data-toggle="tooltip" data-placement="auto" title="" data-original-title="{{ __('catalogs::admin.common.view_catalog') }}"><i class="fas fa-file-pdf"></i></a>
+                                    <a href="{{ $currentTranslation->fullPdfFilePathUrl() }}" download class="btn btn-info tooltips" role="button" data-toggle="tooltip" data-placement="auto" title="" data-original-title="{{ __('catalogs::admin.common.download_catalog') }}"><i class="fas fa-cloud-download-alt"></i></a>
                                     @include('admin.partials.index.action_buttons', ['mainRoute' => 'catalogs.main', 'models' => $mainCatalogs, 'model' => $mainCatalog, 'showInPublicModal' => false])
                                 </td>
                             </tr>
@@ -48,7 +51,7 @@
                                     </table>
                                 </td>
                                 <td class="width-220">
-                                    <img class="thumbnail img-responsive" src="{{ $mainCatalog->translate(config('default.app.language.code'))->fullImageFilePathUrl() }}"/>
+                                    <img class="thumbnail img-responsive" src="{{ $currentTranslation->fullImageFilePathUrl() }}"/>
                                 </td>
                             </tr>
                             <?php $i++;?>

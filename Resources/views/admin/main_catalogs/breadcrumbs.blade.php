@@ -10,12 +10,12 @@
         @if(url()->current() === route('admin.catalogs.main.create'))
             <li>
                 <i class="fa fa-angle-right"></i>
-                <a href="{{ route('admin.catalogs.main.create') }}" class="text-purple">@lang('admin.pages.create')</a>
+                <a href="{{ route('admin.catalogs.main.create') }}" class="text-purple">@lang('catalogs::admin.catalogs_main.create')</a>
             </li>
         @elseif(Request::segment(4) !== null && url()->current() === route('admin.catalogs.main.edit', ['id' => Request::segment(4)]))
             <li>
                 <i class="fa fa-angle-right"></i>
-                <a href="{{ route('admin.catalogs.main.edit', ['id' => Request::segment(4)]) }}" class="text-purple">@lang('admin.pages.edit')</a>
+                <a href="{{ route('admin.catalogs.main.edit', ['id' => Request::segment(4)]) }}" class="text-purple">@lang('catalogs::admin.catalogs_main.edit')</a>
             </li>
         @endif
     </ul>

@@ -7,6 +7,7 @@ use App\Traits\StorageActions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MainCatalogTranslation extends Model
 {
@@ -87,20 +88,9 @@ class MainCatalogTranslation extends Model
         parent::boot();
 
         self::deleted(function (\Modules\Catalogs\Models\MainCatalogTranslation $el) {
-            if (file_exists($el->fullImageFilePath())) {
-                unlink($el->fullImageFilePath());
-            }
-
-            if (file_exists($el->fullPdfFilePath())) {
-                unlink($el->fullPdfFilePath());
-            }
-
-            if (count(FileHelper::getFilesFromDirectory($el->directoryPath())) == 0) {
-                $this->deleteDirectory($el->getFilesPath());
-            }
+            $this->deleteDirectory($el->getFilesPath());
         });
     }
-
     public function saveImage($image): void
     {
         StorageHelper::saveFile($this->getFilesPath(), $image);
