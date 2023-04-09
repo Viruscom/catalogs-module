@@ -2,6 +2,7 @@
 
 namespace Modules\Catalogs\Http\Controllers;
 
+use App\Helpers\AdminHelper;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -14,7 +15,9 @@ class CatalogsController extends Controller
      */
     public function index()
     {
-        return view('catalogs::index');
+        $data = AdminHelper::getInternalLinksUrls([]);
+
+        return view('catalogs::admin.index', $data);
     }
 
     /**

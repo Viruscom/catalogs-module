@@ -1,49 +1,55 @@
-@extends('layouts.app')
+@extends('layouts.admin.app')
 @section('styles')
-    <link href="{{ asset('admin/css/select2.min.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('admin/assets/css/select2.min.css') }}" rel="stylesheet"/>
 @endsection
 @section('scripts')
-    <script src="{{ asset('admin/js/select2.min.js') }}"></script>
+    <script src="{{ asset('admin/assets/js/select2.min.js') }}"></script>
     <script>
-        $(".select2").select2({language: "bg"});
+        $(document).ready(function () {
+            $(".select2").select2({language: "bg"});
+            $('.select2').on('change', function () {
+                var select = $('.select2').find('option:selected');
+                $.ajax({
+                    url: $('.base-url').text() + '/admin/catalogs/manage/get-path',
+                    type: 'POST',
+                    data: {
+                        _token: $('div.form-token').text(),
+                        moduleName: select.attr('module'),
+                        modelPath: select.attr('model'),
+                        modelId: select.attr('model_id'),
+                    },
+                    async: false,
+                    success: function (response) {
+                        window.location.href = $('.base-url').text() + '/admin/gallery/load-gallery/' + response;
+
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log(jqXHR);
+                        console.log(textStatus);
+                        console.log(errorThrown);
+                    }
+                });
+            });
+        });
     </script>
 @endsection
 @section('content')
-    <div class="col-md-12">
-        <div class="alert alert-warning col-md-12"><strong>Внимание!</strong> Преди да асоциирате или управлявате каталог е необходимо да добавите каталозите, с които ще работите.</div>
-    </div>
+    @include('catalogs::admin.breadcrumbs')
+    @include('admin.notify')
+    <div class="alert alert-warning">{!! __('catalogs::admin.catalogs.first_choose_from_list') !!}</div>
     <div class="col-md-12">
         <div class="form form-horizontal form-bordered ">
             <div class="form-group">
-                <label class="control-label col-md-3">Страница:</label>
-                <div class="col-md-4">
-                    <select class="form-control select2 catalog-select" name="navigation">
-                        <option value="">--- Моля, изберете ---</option>
-                        @foreach($navigations as $nav)
-                            <optgroup label="{{$nav->translations->where('language_id', 1)->first()->title}}">
-                                @php
-                                    $contentPages = $nav->content_pages()->orderBy('position', 'asc')->get();
-                                @endphp
-                                @foreach($contentPages as $contPage)
-                                    <option data-parentTypeId="{{$parentTypeContent}}" value="{{$contPage->id}}"> - - {{
-							$contPage->translations->where('language_id', 1)->first()->title}}</option>
+                <label for="page_select" class="control-label col-md-3">{{ __('admin.gallery.page') }}:</label>
+                <div class="col-md-5">
+                    <select id="page_select" name="page" class="form-control select2" style="width: 100%;">
+                        <option value="">@lang('admin.common.please_select')</option>
+                        @foreach($internalLinks as $keyModule => $module)
+                            <optgroup label="{{ $module['name'] }}">
+                                @foreach($module['links'] as $link)
+                                    <option value="{{ old('url') ?: $link->url }}" module="{{Str::plural($keyModule, 1)}}" model="{{ get_class($link) }}" model_id="{{ $link->id }}">{{ $link->title }}</option>
                                 @endforeach
                             </optgroup>
-                            @php
-                                $productCategories = $nav->product_categories()->orderBy('position', 'asc')->get();
-                            @endphp
-                            @foreach($productCategories as $prodCateg)
-                                <optgroup label=" - - {{$prodCateg->translations->where('language_id', 1)->first()->title}}">
-                                    @php
-                                        $products = $prodCateg->products()->orderBy('position', 'asc')->get();
-                                    @endphp
-                                    @foreach($products as $prod)
-                                        <option data-parentTypeId="{{$parentTypeProduct}}" value="{{$prod->id}}"> - - - -{{
-								$prod->translations->where('language_id', 1)->first()->title}}</option>
-                                    @endforeach
-                                </optgroup>
-
-                            @endforeach
                         @endforeach
                     </select>
                 </div>
