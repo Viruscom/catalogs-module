@@ -20,8 +20,7 @@
                     },
                     async: false,
                     success: function (response) {
-                        window.location.href = $('.base-url').text() + '/admin/gallery/load-gallery/' + response;
-
+                        window.location.href = $('.base-url').text() + '/admin/catalogs/manage/load-catalog/' + response;
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.log(jqXHR);

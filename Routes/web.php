@@ -11,6 +11,7 @@
 |
 */
 
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\SliderController;
 use Illuminate\Support\Facades\Route;
 use Modules\Catalogs\Http\Controllers\CatalogsController;
@@ -46,6 +47,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth']], static function ()
     /* Catalogs manage */
     Route::group(['prefix' => 'catalogs/manage'], static function () {
         Route::get('/', [CatalogsController::class, 'index'])->name('admin.catalogs.manage.index');
+        Route::post('/get-path', [CatalogsController::class, 'getEncryptedPath'])->name('admin.catalogs.manage.get-path');
+        Route::get('/load-catalog/{path}', [CatalogsController::class, 'loadCatalogPage'])->name('admin.catalogs.manage.load-catalog');
         Route::get('/create', [CatalogsController::class, 'create'])->name('admin.catalogs.manage.create');
         Route::post('/store', [CatalogsController::class, 'store'])->name('admin.catalogs.manage.store');
 
