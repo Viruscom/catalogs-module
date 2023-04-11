@@ -17,20 +17,20 @@
     </script>
 @endsection
 @section('content')
-    @include('admin.gallery.breadcrumbs')
+    @include('catalogs::admin.breadcrumbs')
     @include('admin.notify')
 
     @if(!$model->headerGallery && !$model->mainGallery && !$model->additionalGalleryOne && !$model->additionalGalleryTwo && !$model->additionalGalleryThree && !$model->additionalGalleryFour && !$model->additionalGalleryFive && !$model->additionalGallerySix)
         <div class="row">
             <div class="col-md-12">
-                <div class="alert alert-danger">{!! __('admin.gallery.warning_no_gallery_methods_in_eloquent_model') !!}</div>
+                <div class="alert alert-danger">{!! __('catalogs::admin.catalogs.warning_no_catalogs_methods_in_eloquent_model') !!}</div>
             </div>
         </div>
     @else
         @if ($model->headerGallery)
             <div class="row">
                 <div class="col-xs-12">
-                    <h3>{{ __('admin.gallery.header_gallery') }} {{ __('admin.gallery.for') }} {{ $model->title }}</h3>
+                    <h3>{{ __('catalogs::admin.catalogs.after_main_description') }} {{ __('admin.gallery.for') }} {{ $model->title }}</h3>
                     @include('admin.gallery.top_buttons', ['addModalId' => 'headerAddModalId', 'formId' => 'headerForm'])
                     @include('admin.gallery.submit_modal', ['addModalId' => 'headerAddModalId', 'formId' => 'headerForm', 'galleryType' => Gallery::HEADER_GALLERY])
                     <div class="table-responsive">

@@ -23,5 +23,13 @@ return [
         'create' => 'Добавяне на каталог към страница',
         'edit'   => 'Редактиране на каталог',
         'first_choose_from_list'                       => '<strong>Внимание!</strong> За да добавите или разгледате каталог е необходимо да изберете страница от списъка.',
+        'warning_no_catalogs_methods_in_eloquent_model' => '<strong>Внимание!</strong> Търсеният от Вас модул няма асоциирани страници с каталози.',
+        'after_main_description' => 'Каталози след основен текст',
+        'after_additional_description_1' => 'Каталози след допълнителен текст 1',
+        'after_additional_description_2' => 'Каталози след допълнителен текст 2',
+        'after_additional_description_3' => 'Каталози след допълнителен текст 3',
+        'after_additional_description_4' => 'Каталози след допълнителен текст 4',
+        'after_additional_description_5' => 'Каталози след допълнителен текст 5',
+        'after_additional_description_6' => 'Каталози след допълнителен текст 6',
     ],
 ];
