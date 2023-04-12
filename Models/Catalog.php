@@ -30,7 +30,7 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
     protected $fillable = ['parent_type_id', 'parent_id', 'show_in_header', 'show_in_gallery', 'active', 'main_position', 'position', 'creator_user_id', 'filename', 'main_catalog_id'];
 
     public static string $IMAGES_PATH = "images/catalogs";
-    public static function getRelationships($parentModel): array
+    public static function getCollections($parentModel): array
     {
         return [
             self::CATALOGS_AFTER_DESCRIPTION              => self::getCatalogs($parentModel, self::CATALOGS_AFTER_DESCRIPTION),
