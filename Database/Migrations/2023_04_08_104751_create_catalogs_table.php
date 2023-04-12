@@ -21,7 +21,7 @@ class CreateCatalogsTable extends Migration
             $table->string('module')->nullable()->default(null);
             $table->string('model');
             $table->integer('model_id');
-            $table->integer('main_position');
+            $table->string('main_position');
             $table->integer('position');
             $table->integer('creator_user_id')->nullable()->default(null);
             $table->string('filename')->nullable()->default(null);

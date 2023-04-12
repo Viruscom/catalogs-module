@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class CatalogTranslation extends Model
 {
     protected $table = "catalog_translation";
-    protected $fillable = ['gallery_id','language_id', 'short_description'];
+    protected $fillable = ['catalog_id','locale', 'short_description'];
 
-    public function gallery()
+    public function parent()
     {
-        return $this->belongsTo(Catalog::class, 'id', 'gallery_id');
+        return $this->belongsTo(Catalog::class, 'id', 'catalog_id');
     }
 
     public function language()

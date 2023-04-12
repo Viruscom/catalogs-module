@@ -11,17 +11,44 @@ use Astrotomic\Translatable\Translatable;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Catalog extends Model implements TranslatableContract, CommonModelInterface
 {
     use Translatable, Scopes, StorageActions, CommonActions;
 
+    const CATALOGS_AFTER_DESCRIPTION              = "catalogsAfterDescription";
+    const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_1 = "catalogsAfterAdditionalDescription_1";
+    const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_2 = "catalogsAfterAdditionalDescription_2";
+    const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_3 = "catalogsAfterAdditionalDescription_3";
+    const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_4 = "catalogsAfterAdditionalDescription_4";
+    const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_5 = "catalogsAfterAdditionalDescription_5";
+    const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_6 = "catalogsAfterAdditionalDescription_6";
+
+    public array         $translatedAttributes        = ['short_description'];
     protected $table    = "catalogs";
     protected $fillable = ['parent_type_id', 'parent_id', 'show_in_header', 'show_in_gallery', 'active', 'main_position', 'position', 'creator_user_id', 'filename', 'main_catalog_id'];
 
-    public static $IMAGES_PATH = "images/catalogs";
+    public static string $IMAGES_PATH = "images/catalogs";
+    public static function getRelationships($parentModel): array
+    {
+        return [
+            self::CATALOGS_AFTER_DESCRIPTION              => self::getCatalogs($parentModel, self::CATALOGS_AFTER_DESCRIPTION),
+            self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_1 => self::getCatalogs($parentModel, self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_1),
+            self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_2 => self::getCatalogs($parentModel, self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_2),
+            self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_3 => self::getCatalogs($parentModel, self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_3),
+            self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_4 => self::getCatalogs($parentModel, self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_4),
+            self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_5 => self::getCatalogs($parentModel, self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_5),
+            self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_6 => self::getCatalogs($parentModel, self::CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_6),
+        ];
+    }
 
-
+    public static function getCatalogs($parentModel, $mainPosition)
+    {
+        return Catalog::where('model', get_class($parentModel))
+            ->where('model_id', $parentModel->id)
+            ->where('main_position', $mainPosition)->with('parent','parent.translations')->get();
+    }
 
     public function parent(): BelongsTo
     {
