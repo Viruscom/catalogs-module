@@ -17,16 +17,16 @@
     </div>
 
     <div class="action-mass-buttons pull-right">
-        <a href="#" role="button" class="btn btn-lg tooltips green" data-toggle="modal" data-target="#{{$addModalId}}" data-original-title="{{ __('admin.common.create_new') }}">
+        <a href="{{ route('admin.catalogs.manage.create', ['path' => Request::segment(5), 'mainPosition' => $mainPosition]) }}" role="button" class="btn btn-lg tooltips green" data-toggle="tooltip" data-placement="auto" title="" data-original-title="{{ __('admin.common.create_new') }}">
             <i class="fas fa-plus"></i>
         </a>
-        <a href="{{ route('admin.gallery.active-multiple', ['active' => 0]) }}" class="btn btn-lg tooltips light-grey-eye mass-unvisible" data-toggle="tooltip" data-placement="auto" title="" data-original-title="{{ __('admin.common.deactivate_all_marked_elements') }}">
+        <a href="{{ route('admin.catalogs.manage.active-multiple', ['active' => 0]) }}" class="btn btn-lg tooltips light-grey-eye mass-unvisible" data-toggle="tooltip" data-placement="auto" title="" data-original-title="{{ __('admin.common.deactivate_all_marked_elements') }}">
             <i class="far fa-eye-slash"></i>
         </a>
-        <a href="{{ route('admin.gallery.active-multiple', ['active' => 1]) }}" class="btn btn-lg tooltips grey-eye mass-visible" data-toggle="tooltip" data-placement="auto" title="" data-original-title="{{ __('admin.common.activate_all_marked_elements') }}">
+        <a href="{{ route('admin.catalogs.manage.active-multiple', ['active' => 1]) }}" class="btn btn-lg tooltips grey-eye mass-visible" data-toggle="tooltip" data-placement="auto" title="" data-original-title="{{ __('admin.common.activate_all_marked_elements') }}">
             <i class="far fa-eye"></i>
         </a>
-        <a href="{{ route('admin.gallery.delete-multiple') }}" class="btn btn-lg red btn-delete-confirm tooltips" data-toggle="tooltip" data-placement="auto" title="" data-original-title="{{ __('admin.common.delete_all_marked_elements') }}">
+        <a href="{{ route('admin.catalogs.manage.delete-multiple') }}" class="btn btn-lg red btn-delete-confirm tooltips" data-toggle="tooltip" data-placement="auto" title="" data-original-title="{{ __('admin.common.delete_all_marked_elements') }}">
             <i class="fas fa-trash-alt"></i>
         </a>
     </div>

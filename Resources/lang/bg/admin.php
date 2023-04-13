@@ -31,5 +31,7 @@ return [
         'after_additional_description_4' => 'Каталози след допълнителен текст 4',
         'after_additional_description_5' => 'Каталози след допълнителен текст 5',
         'after_additional_description_6' => 'Каталози след допълнителен текст 6',
+        'select_main_catalog' => 'Основен каталог',
+        'warning_class_not_found' => '<strong>Внимание!</strong> Възникна грешка.'
     ],
 ];

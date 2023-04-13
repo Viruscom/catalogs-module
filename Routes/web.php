@@ -49,8 +49,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth']], static function ()
         Route::get('/', [CatalogsController::class, 'index'])->name('admin.catalogs.manage.index');
         Route::post('/get-path', [CatalogsController::class, 'getEncryptedPath'])->name('admin.catalogs.manage.get-path');
         Route::get('/load-catalog/{path}', [CatalogsController::class, 'loadCatalogPage'])->name('admin.catalogs.manage.load-catalog');
-        Route::get('/create', [CatalogsController::class, 'create'])->name('admin.catalogs.manage.create');
-        Route::post('/store', [CatalogsController::class, 'store'])->name('admin.catalogs.manage.store');
+        Route::get('/create/{path}/{mainPosition}', [CatalogsController::class, 'create'])->name('admin.catalogs.manage.create');
+        Route::post('/store/{path}/{mainPosition}', [CatalogsController::class, 'store'])->name('admin.catalogs.manage.store');
 
         Route::group(['prefix' => 'multiple'], static function () {
             Route::get('active/{active}', [CatalogsController::class, 'activeMultiple'])->name('admin.catalogs.manage.active-multiple');

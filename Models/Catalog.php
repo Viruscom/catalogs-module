@@ -2,7 +2,9 @@
 
 namespace Modules\Catalogs\Models;
 
+use App\Helpers\AdminHelper;
 use App\Interfaces\Models\CommonModelInterface;
+use App\Models\CategoryPage\CategoryPageTranslation;
 use App\Traits\CommonActions;
 use App\Traits\Scopes;
 use App\Traits\StorageActions;
@@ -12,6 +14,7 @@ use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Catalog extends Model implements TranslatableContract, CommonModelInterface
 {
@@ -25,9 +28,14 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
     const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_5 = "catalogsAfterAdditionalDescription_5";
     const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_6 = "catalogsAfterAdditionalDescription_6";
 
-    public array         $translatedAttributes        = ['short_description'];
-    protected $table    = "catalogs";
-    protected $fillable = ['parent_type_id', 'parent_id', 'show_in_header', 'show_in_gallery', 'active', 'main_position', 'position', 'creator_user_id', 'filename', 'main_catalog_id'];
+    public static string $CATALOG_SYSTEM_IMAGE  = 'catalog_1_image.png';
+    public static string $CATALOG_RATIO         = '1/1';
+    public static string $CATALOG_MIMES         = 'jpg,jpeg,png,gif';
+    public static string $CATALOG_MAX_FILE_SIZE = '3000';
+
+    public array $translatedAttributes = ['short_description'];
+    protected    $table                = "catalogs";
+    protected    $fillable             = ['main_catalog_id', 'module', 'model', 'model_id', 'active', 'main_position', 'position', 'creator_user_id', 'filename'];
 
     public static string $IMAGES_PATH = "images/catalogs";
     public static function getCollections($parentModel): array
@@ -47,7 +55,7 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
     {
         return Catalog::where('model', get_class($parentModel))
             ->where('model_id', $parentModel->id)
-            ->where('main_position', $mainPosition)->with('parent','parent.translations')->get();
+            ->where('main_position', $mainPosition)->with('parent', 'parent.translations')->orderBy('position')->get();
     }
 
     public function parent(): BelongsTo
@@ -57,7 +65,10 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
 
     public static function generatePosition($request)
     {
-        $galleries = self::where('parent_type_id', $parentTypeId)->where('parent_id', $parentId)->where('main_position', $request->main_position)->orderBy('position', 'desc')->get();
+        $splitPath = explode("-", decrypt($request->path));
+        $query     = self::where('module', $splitPath[0])->where('model', $splitPath[1])->where('model_id', $splitPath[2])->where('main_position', $request->mainPosition);
+
+        $galleries = $query->orderBy('position', 'desc')->get();
         if (count($galleries) < 1) {
             return 1;
         }
@@ -69,8 +80,8 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
             return $galleries->first()->position + 1;
         }
 
-        $galleriesUpdate = self::where('parent_type_id', $parentTypeId)->where('parent_id', $parentId)->where('main_position', $request->main_position)->where('position', '>=', $request['position'])->get();
-        self::updateGalleyPosition($galleriesUpdate, true);
+        $galleriesUpdate = $query->where('position', '>=', $request['position'])->get();
+        self::updateModelsPosition($galleriesUpdate, true);
 
         return $request['position'];
     }
@@ -80,8 +91,10 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
         if (!$request->has('position') || is_null($request->position) || ($request->position == $this->position)) {
             return $this->position;
         }
+        $splitPath = explode("-", decrypt($request->path));
+        $query     = self::where('module', $splitPath[0])->where('model', $splitPath[1])->where('model_id', $splitPath[2])->where('main_position', $request->mainPosition);
 
-        $galleries = self::where('parent_type_id', $this->parent_type_id)->where('parent_id', $this->parent_id)->where('main_position', $request->main_position)->orderBy('position', 'desc')->get();
+        $galleries = $query->orderBy('position', 'desc')->get();
 
         if ($request['position'] > $galleries->first()->position) {
             $request['position'] = $galleries->first()->position;
@@ -90,56 +103,32 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
         }
 
         if ($request['position'] >= $this->position) {
-            $galleriesToUpdate = self::where('parent_type_id', $this->parent_type_id)->where('parent_id', $this->parent_id)->where('main_position', $request->main_position)->where('id', '<>', $this->id)->where('position', '>', $this->position)->where('position', '<=', $request['position'])->get();
-            self::updateGalleyPosition($galleriesToUpdate, false);
+            $galleriesToUpdate = $query->where('id', '<>', $this->id)->where('position', '>', $this->position)->where('position', '<=', $request['position'])->get();
+            self::updateModelsPosition($galleriesToUpdate, false);
         } else {
-            $galleriesToUpdate = self::where('parent_type_id', $this->parent_type_id)->where('parent_id', $this->parent_id)->where('main_position', $request->main_position)->where('id', '<>', $this->id)->where('position', '<', $this->position)->where('position', '>=', $request['position'])->get();
-            self::updateGalleyPosition($galleriesToUpdate, true);
+            $galleriesToUpdate = $query->where('id', '<>', $this->id)->where('position', '<', $this->position)->where('position', '>=', $request['position'])->get();
+            self::updateModelsPosition($galleriesToUpdate, true);
         }
 
         return $request['position'];
     }
 
-    public static function getCreateData($request)
+    private static function updateModelsPosition($models, $increment = true): void
     {
-        $data                    = Catalog::getRequestData($request);
-        $data['creator_user_id'] = Auth::user()->id;
-
-        return $data;
-    }
-
-    public function getUpdateData($request)
-    {
-        $data                    = Catalog::getRequestData($request);
-        $data['creator_user_id'] = $this->creator_user_id;
-
-        return $data;
-    }
-
-    /**
-     * Update gallery position
-     *
-     * @param $galleries / Galleries to update
-     * @param bool $increment / Increment (true) or decrement (false)
-     *
-     * @return void
-     */
-    private static function updateGalleyPosition($galleries, $increment = true): void
-    {
-        foreach ($galleries as $galleryUpdate) {
-            $position = ($increment) ? $galleryUpdate->position + 1 : $galleryUpdate->position - 1;
-            $galleryUpdate->update(['position' => $position]);
+        foreach ($models as $model) {
+            $position = ($increment) ? $model->position + 1 : $model->position - 1;
+            $model->update(['position' => $position]);
         }
     }
-
     public static function getRequestData($request): array
     {
-        $data = [
-            'parent_type_id'  => $request->parent_type_id,
-            'parent_id'       => $request->parent_id,
-            'main_position'   => $request->main_position,
-            'position'        => $request->position,
-            'main_catalog_id' => $request->main_catalog_id
+        $splitPath = explode("-", decrypt($request->path));
+        $data      = [
+            'main_catalog_id' => $request->main_catalog_id,
+            'main_position'    => $request->mainPosition,
+            'module'          => $splitPath[0],
+            'model'           => $splitPath[1],
+            'model_id'        => $splitPath[2],
         ];
 
         $data['active'] = false;
@@ -147,44 +136,52 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
             $data['active'] = filter_var($request->active, FILTER_VALIDATE_BOOLEAN);
         }
 
-        $data['show_in_header'] = false;
-        if ($request->has('show_in_header')) {
-            $data['show_in_header'] = filter_var($request->show_in_header, FILTER_VALIDATE_BOOLEAN);
-        }
-
-        $data['show_in_gallery'] = false;
-        if ($request->has('show_in_gallery')) {
-            $data['show_in_gallery'] = filter_var($request->show_in_gallery, FILTER_VALIDATE_BOOLEAN);
-        }
-
-        if ($request->has('filename')) {
-            $data['filename'] = $request->filename;
+        return $data;
+    }
+    public static function getLangArraysOnStore($data, $request, $languages, $modelId, $isUpdate)
+    {
+        foreach ($languages as $language) {
+            $data[$language->code] = CatalogTranslation::getLanguageArray($language, $request, $modelId, $isUpdate);
         }
 
         return $data;
     }
 
-    public function directoryPath()
+    public function setKeys($array): array
     {
-        return public_path(self::$IMAGES_PATH . '/' . $this->parent_id);
+        $array[1]['sys_image_name'] = trans('catalogs::admin.catalogs.index');
+        $array[1]['sys_image']      = self::$CATALOG_SYSTEM_IMAGE;
+        $array[1]['sys_image_path'] = AdminHelper::getSystemImage(self::$CATALOG_SYSTEM_IMAGE);
+        $array[1]['ratio']          = self::$CATALOG_RATIO;
+        $array[1]['mimes']          = self::$CATALOG_MIMES;
+        $array[1]['max_file_size']  = self::$CATALOG_MAX_FILE_SIZE;
+        $array[1]['file_rules']     = 'mimes:' . self::$CATALOG_MIMES . '|size:' . self::$CATALOG_MAX_FILE_SIZE . '|dimensions:ratio=' . self::$CATALOG_RATIO;
+
+        return $array;
+    }
+    public function getSystemImage(): string
+    {
+        return AdminHelper::getSystemImage(self::$CATALOG_SYSTEM_IMAGE);
+    }
+    public function getUrl()
+    {
+        if (!is_null($this->url)) {
+            if ($this->external_url) {
+                return $this->url;
+            }
+
+            return url($this->url);
+        }
+
+        return '';
+    }
+    public function getFilepath($filename): string
+    {
+        return $this->getFilesPath() . $filename;
+    }
+    public function getFilesPath(): string
+    {
+        return self::FILES_PATH . '/' . $this->id . '/';
     }
 
-    public function fullImageFilePath()
-    {
-        return public_path(self::$IMAGES_PATH . '/' . $this->parent_id) . '/' . $this->filename;
-    }
-
-    public function fullImageFilePathUrl()
-    {
-        return url(self::$IMAGES_PATH . '/' . $this->parent_id) . '/' . $this->filename;
-    }
-
-    public function saveImage($image)
-    {
-        FileHelper::saveFile(public_path(self::$IMAGES_PATH . '/' . $this->parent_id), $image, $image->getClientOriginalName(), pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME) . '.png');
-    }
-    public static function getLangArraysOnStore($data, $request, $languages, $modelId, $isUpdate)
-    {
-        // TODO: Implement getLangArraysOnStore() method.
-    }
 }
