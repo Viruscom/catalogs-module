@@ -13,9 +13,19 @@
 
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\SliderController;
+use App\Http\Controllers\Front\FrontHomeController;
 use Illuminate\Support\Facades\Route;
 use Modules\Catalogs\Http\Controllers\CatalogsController;
+use Modules\Catalogs\Http\Controllers\FrontCatalogsController;
 use Modules\Catalogs\Http\Controllers\MainCatalogsController;
+
+/* FRONT ROUTES */
+
+Route::group(['prefix' => '/', 'middleware' => ['lockedSite', 'underMaintenance']], static function () {
+    Route::group(['prefix' => '{languageSlug}', 'where' => ['languageSlug' => '[a-zA-Z]{2}']], static function () {
+        Route::get('/catalog/{catalogId}/preview', [FrontCatalogsController::class, 'previewCatalog'])->name('front.catalogs.index');
+    });
+});
 
 /*
  * ADMIN ROUTES

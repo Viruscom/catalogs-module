@@ -80,7 +80,7 @@ class MainCatalogTranslation extends Model
     }
     public function catalogPreviewPath(): string
     {
-        return url($this->getFilesPath() . $this->filename);
+        return $this->getFileUrl();
     }
 
     public static function boot()

@@ -51,6 +51,11 @@ class MainCatalog extends Model implements TranslatableContract, CommonModelInte
         cache()->remember(CacheKeysHelper::$CATALOGS_MAIN_ADMIN, config('default.app.cache.ttl_seconds'), function () {
             return self::with('translations')->withTranslation()->orderBy('position')->get();
         });
+
+        cache()->forget(CacheKeysHelper::$CATALOGS_MAIN_FRONT);
+        cache()->rememberForever(CacheKeysHelper::$CATALOGS_MAIN_FRONT, function () {
+            return self::where('active', true)->with('translations')->withTranslation()->orderBy('position')->get();
+        });
     }
 
 
