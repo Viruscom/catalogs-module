@@ -55,7 +55,7 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
     {
         return Catalog::where('model', get_class($parentModel))
             ->where('model_id', $parentModel->id)
-            ->where('main_position', $mainPosition)->with('parent', 'parent.translations')->orderBy('position')->get();
+            ->where('main_position', $mainPosition)->with('translations', 'parent', 'parent.translations')->orderBy('position')->get();
     }
 
     public function parent(): BelongsTo
