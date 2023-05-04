@@ -22,7 +22,9 @@
                     @foreach($languages as $language)
                         @php
                             $fieldName = 'short_description_' . $language->code;
-                                $currentTranslation = $catalog->translate($language->code);
+                        @endphp
+                        @php
+                            $currentTranslation = is_null($catalog->translate($language->code)) ? $catalog : $catalog->translate($language->code);
                         @endphp
                         <div id="{{$language->code}}" class="tab-pane fade in @if($language->code === config('default.app.language.code')) active @endif">
                             <div class="form-group @if($errors->has($fieldName)) has-error @endif">

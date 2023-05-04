@@ -23,10 +23,13 @@
                             <?php
                             $langCatalog   = 'filename_' . $language->code;
                             $langThumbnail = 'thumbnail_' . $language->code;
-                            $currentTranslation = $mainCatalog->translate($language->code);
                             ?>
+                        @php
+                            $currentTranslation = is_null($mainCatalog->translate($language->code)) ? $mainCatalog : $mainCatalog->translate($language->code);
+                        @endphp
+
                         <div id="{{$language->code}}" class="tab-pane fade in @if($language->code === config('default.app.language.code')) active @endif">
-                            @include('admin.partials.on_edit.form_fields.input_text', ['model' => $mainCatalog, 'fieldName' => 'title_' . $language->code, 'label' => trans('admin.title'), 'required' => true])
+                            @include('admin.partials.on_edit.form_fields.input_text', ['model' => $currentTranslation, 'fieldName' => 'title_' . $language->code, 'label' => trans('admin.title'), 'required' => true])
                             <hr>
                             <div class="row">
                                 <div class="col-md-6 col-xs-12">

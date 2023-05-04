@@ -9,10 +9,9 @@
 </head>
 <body>
 <div id="container"></div>
-{{--TODO: Da se  napravi logika za $otherSettings--}}
-{{--<style type="text/css">--}}
-{{--    .flipbook-main-wrapper {background-color: # {{ $otherSetting->{'catalog_background_color'} }}  !important;}--}}
-{{--</style>--}}
+<style type="text/css">
+    .flipbook-main-wrapper {background-color: # {{ $mainSettings->{'catalog_background_color'} }}  !important;}
+</style>
 <script type="text/javascript">
 
     $(document).ready(function () {
