@@ -147,18 +147,6 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
         return $data;
     }
 
-    public function setKeys($array): array
-    {
-        $array[1]['sys_image_name'] = trans('catalogs::admin.catalogs.index');
-        $array[1]['sys_image']      = self::$CATALOG_SYSTEM_IMAGE;
-        $array[1]['sys_image_path'] = AdminHelper::getSystemImage(self::$CATALOG_SYSTEM_IMAGE);
-        $array[1]['ratio']          = self::$CATALOG_RATIO;
-        $array[1]['mimes']          = self::$CATALOG_MIMES;
-        $array[1]['max_file_size']  = self::$CATALOG_MAX_FILE_SIZE;
-        $array[1]['file_rules']     = 'mimes:' . self::$CATALOG_MIMES . '|size:' . self::$CATALOG_MAX_FILE_SIZE . '|dimensions:ratio=' . self::$CATALOG_RATIO;
-
-        return $array;
-    }
     public function getSystemImage(): string
     {
         return AdminHelper::getSystemImage(self::$CATALOG_SYSTEM_IMAGE);
