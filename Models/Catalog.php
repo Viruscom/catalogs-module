@@ -4,17 +4,13 @@ namespace Modules\Catalogs\Models;
 
 use App\Helpers\AdminHelper;
 use App\Interfaces\Models\CommonModelInterface;
-use App\Models\CategoryPage\CategoryPageTranslation;
 use App\Traits\CommonActions;
 use App\Traits\Scopes;
 use App\Traits\StorageActions;
 use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
 use Astrotomic\Translatable\Translatable;
-use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 class Catalog extends Model implements TranslatableContract, CommonModelInterface
 {
@@ -28,16 +24,14 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
     const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_5 = "catalogsAfterAdditionalDescription_5";
     const CATALOGS_AFTER_ADDITIONAL_DESCRIPTION_6 = "catalogsAfterAdditionalDescription_6";
 
-    public static string $CATALOG_SYSTEM_IMAGE  = 'catalog_1_image.png';
+    public static string $CATALOG_SYSTEM_IMAGE  = 'catalogs_1_image.png';
     public static string $CATALOG_RATIO         = '1/1';
     public static string $CATALOG_MIMES         = 'jpg,jpeg,png,gif';
     public static string $CATALOG_MAX_FILE_SIZE = '3000';
-
+    public static string $IMAGES_PATH = "images/catalogs";
     public array $translatedAttributes = ['short_description'];
     protected    $table                = "catalogs";
     protected    $fillable             = ['main_catalog_id', 'module', 'model', 'model_id', 'active', 'main_position', 'position', 'creator_user_id', 'filename'];
-
-    public static string $IMAGES_PATH = "images/catalogs";
     public static function getCollections($parentModel): array
     {
         return [
@@ -57,12 +51,6 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
             ->where('model_id', $parentModel->id)
             ->where('main_position', $mainPosition)->with('translations', 'parent', 'parent.translations')->orderBy('position')->get();
     }
-
-    public function parent(): BelongsTo
-    {
-        return $this->belongsTo(MainCatalog::class, 'main_catalog_id');
-    }
-
     public static function generatePosition($request)
     {
         $splitPath = explode("-", decrypt($request->path));
@@ -85,7 +73,43 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
 
         return $request['position'];
     }
+    private static function updateModelsPosition($models, $increment = true): void
+    {
+        foreach ($models as $model) {
+            $position = ($increment) ? $model->position + 1 : $model->position - 1;
+            $model->update(['position' => $position]);
+        }
+    }
+    public static function getRequestData($request): array
+    {
+        $splitPath = explode("-", decrypt($request->path));
+        $data      = [
+            'main_catalog_id' => $request->main_catalog_id,
+            'main_position'   => $request->mainPosition,
+            'module'          => $splitPath[0],
+            'model'           => $splitPath[1],
+            'model_id'        => $splitPath[2],
+        ];
 
+        $data['active'] = false;
+        if ($request->has('active')) {
+            $data['active'] = filter_var($request->active, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return $data;
+    }
+    public static function getLangArraysOnStore($data, $request, $languages, $modelId, $isUpdate)
+    {
+        foreach ($languages as $language) {
+            $data[$language->code] = CatalogTranslation::getLanguageArray($language, $request, $modelId, $isUpdate);
+        }
+
+        return $data;
+    }
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(MainCatalog::class, 'main_catalog_id');
+    }
     public function updatedPosition($request)
     {
         if (!$request->has('position') || is_null($request->position) || ($request->position == $this->position)) {
@@ -112,41 +136,6 @@ class Catalog extends Model implements TranslatableContract, CommonModelInterfac
 
         return $request['position'];
     }
-
-    private static function updateModelsPosition($models, $increment = true): void
-    {
-        foreach ($models as $model) {
-            $position = ($increment) ? $model->position + 1 : $model->position - 1;
-            $model->update(['position' => $position]);
-        }
-    }
-    public static function getRequestData($request): array
-    {
-        $splitPath = explode("-", decrypt($request->path));
-        $data      = [
-            'main_catalog_id' => $request->main_catalog_id,
-            'main_position'    => $request->mainPosition,
-            'module'          => $splitPath[0],
-            'model'           => $splitPath[1],
-            'model_id'        => $splitPath[2],
-        ];
-
-        $data['active'] = false;
-        if ($request->has('active')) {
-            $data['active'] = filter_var($request->active, FILTER_VALIDATE_BOOLEAN);
-        }
-
-        return $data;
-    }
-    public static function getLangArraysOnStore($data, $request, $languages, $modelId, $isUpdate)
-    {
-        foreach ($languages as $language) {
-            $data[$language->code] = CatalogTranslation::getLanguageArray($language, $request, $modelId, $isUpdate);
-        }
-
-        return $data;
-    }
-
     public function getSystemImage(): string
     {
         return AdminHelper::getSystemImage(self::$CATALOG_SYSTEM_IMAGE);
