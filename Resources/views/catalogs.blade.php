@@ -1,4 +1,4 @@
-@if(!is_null($catalogs))
+@if(!is_null($catalogs) && $catalogs->isNotEmpty())
     <ul class="list-thumbnails">
         @foreach($catalogs as $catalog)
             <li data-aos="fade-up">
